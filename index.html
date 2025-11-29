@@ -220,7 +220,7 @@
             
             try {
                 // DeepSeek API 的端点和请求格式与Llama不同
-                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                const response = await fetch('https://api.deepseek.com/v1', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${DEEPGEEK_API_KEY}`,
