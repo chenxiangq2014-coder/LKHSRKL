@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>龙柯皓 - 生如快乐</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #000;
+            color: #0f0;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 代码雨背景 */
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* 启动屏幕 */
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .boot-log {
+            margin: 8px 0;
+            font-size: 14px;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        /* 导航栏 */
+        nav {
+            border-bottom: 1px solid #0F0;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: #0F0;
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            border-color: #0F0;
+            background-color: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 5px #0F0;
+        }
+
+        /* 终端卡片样式 */
+        .terminal-card {
+            background-color: #000;
+            border: 1px solid #0F0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 0 10px rgba(15, 255, 15, 0.1);
+        }
+
+        .terminal-header {
+            background-color: #000;
+            border-bottom: 1px solid #0F0;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .window-controls {
+            display: flex;
+            margin-right: 15px;
+        }
+
+        .window-control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .red { background-color: #FF5F58; }
+        .yellow { background-color: #FFBD2E; }
+        .green { background-color: #18C372; }
+
+        .terminal-content {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 打字机效果 */
+        .typing-animation::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+
+        /* 快乐瞬间卡片 */
+        .moments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .happy-moment-card {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .happy-moment-card:hover .terminal-content {
+            color: #0FF;
+            border-color: #0FF;
+        }
+
+        /* 终端按钮 */
+        .terminal-button {
+            display: inline-flex;
+            align-items: center;
+            background-color: #000;
+            color: #0F0;
+            border: 1px solid #0F0;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin: 5px 0;
+        }
+
+        .terminal-button:hover {
+            background-color: rgba(15, 255, 15, 0.1);
+            color: #0FF;
+            border-color: #0FF;
+            box-shadow: 0 0 10px rgba(15, 255, 15, 0.2);
+        }
+
+        /* 互动终端 */
+        #terminal-output {
+            height: 250px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid #0F0;
+            padding: 10px;
+            background-color: #000;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+        }
+
+        #user-input {
+            background: transparent;
+            border: none;
+            color: #0F0;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            padding: 5px;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #000;
+            border: 1px solid #0F0;
+            border-radius: 4px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 640px) {
+            .moments-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 代码雨背景 -->
+    <canvas id="matrix-bg"></canvas>
+
+    <!-- 启动屏幕 -->
+    <div id="boot-screen">
+        <div class="boot-log">Initializing system...</div>
+        <div class="boot-log">Loading hack style resources...</div>
+        <div class="boot-log">Connecting to happiness database...</div>
+        <div class="boot-log">Verifying user: 龙柯皓</div>
+        <div class="boot-log">System check passed ✓</div>
+        <div class="boot-log typing-animation">Welcome to happiness terminal</div>
+    </div>
+
+    <!-- 主内容 -->
+    <div id="main-content" style="display: none;">
+        <!-- 导航栏 -->
+        <nav>
+            <ul>
+                <li><a href="#home" class="nav-link">> home</a></li>
+                <li><a href="#about" class="nav-link">> about</a></li>
+                <li><a href="#moments" class="nav-link">> happy_moments</a></li>
+                <li><a href="#terminal" class="nav-link">> terminal</a></li>
+            </ul>
+        </nav>
+
+        <!-- 首页 -->
+        <section id="home">
+            <div class="terminal-card">
+                <div class="terminal-header">
+                    <div class="window-controls">
+                        <div class="window-control red"></div>
+                        <div class="window-control yellow"></div>
+                        <div class="window-control green"></div>
+                    </div>
+                    <span>home.exe</span>
+                </div>
+                <div class="terminal-content">
+                    <h1 style="font-size: 2.5rem; text-align: center; margin: 20px 0; color: #0F0; text-shadow: 0 0 10px #0F0;">龙柯皓</h1>
+                    <p style="text-align: center; font-size: 1.2rem; margin-bottom: 30px;">生如快乐 · HAPPINESS IS A STATE OF MIND</p>
+                    
+                    <div style="height: 2px; background: linear-gradient(90deg, transparent, #0F0, transparent); margin: 30px 0; animation: scan 3s linear infinite;"></div>
+                    
+                    <div style="text-align: center; margin-top: 40px;">
+                        <a href="#about" class="terminal-button">
+                            <span>>></span>
+                            <span style="margin-left: 8px;">开始探索</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 关于区域 -->
+        <section id="about">
+            <div class="terminal-card">
+                <div class="terminal-header">
+                    <div class="window-controls">
+                        <div class="window-control red"></div>
+                        <div class="window-control yellow"></div>
+                        <div class="window-control green"></div>
+                    </div>
+                    <span>about.exe</span>
+                </div>
+                <div class="terminal-content">
+                    <h2 style="color: #0F0; margin-bottom: 20px; font-size: 1.5rem;">关于 龙柯皓 <span class="typing-animation"></span></h2>
+                    
+                    <div class="快乐-hack" style="margin-bottom: 20px;">
+                        <p>龙柯皓，一个热爱生活、追逐快乐的探索者。</p>
+                        <p>"生如快乐" 是他的生活信条——生活本就是由无数个微小的快乐瞬间组成。</p>
+                    </div>
+                    
+                    <div class="快乐-hack" style="margin-bottom: 20px;">
+                        <p>无论是攻克一个技术难题后的成就感，还是和朋友小聚时的欢声笑语，</p>
+                        <p>亦或是独处时享受片刻宁静的惬意，都是生命中珍贵的印记。</p>
+                    </div>
+                    
+                    <div class="快乐-hack">
+                        <p>这个黑客风格的页面，正是对这份快乐态度的独特诠释，</p>
+                        <p>愿每一个日子都充满代码般的严谨，和生活般的热烈。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 快乐瞬间区域 -->
+        <section id="moments">
+            <div class="terminal-card">
+                <div class="terminal-header">
+                    <div class="window-controls">
+                        <div class="window-control red"></div>
+                        <div class="window-control yellow"></div>
+                        <div class="window-control green"></div>
+                    </div>
+                    <span>happy_moments.exe</span>
+                </div>
+                <div class="terminal-content">
+                    <h2 style="color: #0F0; margin-bottom: 20px; font-size: 1.5rem;">快乐瞬间数据库 <span class="typing-animation"></span></h2>
+                    
+                    <div class="moments-grid">
+                        <!-- 快乐瞬间1 -->
+                        <div class="happy-moment-card terminal-card">
+                            <div class="terminal-header">
+                                <div class="window-controls">
+                                    <div class="window-control red"></div>
+                                    <div class="window-control yellow"></div>
+                                    <div class="window-control green"></div>
+                                </div>
+                                <span>moment_001.exe</span>
+                            </div>
+                            <div class="terminal-content" style="border-top: 1px solid #0F0;">
+                                <h3 style="color: #0F0; margin-bottom: 10px;">技术突破</h3>
+                                <p>成功实现一个黑客风格的网页，成就感拉满！</p>
+                                <div style="text-align: center; margin-top: 15px;">
+                                    <img src="https://picsum.photos/id/0/100/100" alt="技术突破" style="max-width: 100px; border: 1px solid #0F0;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 快乐瞬间2 -->
+                        <div class="happy-moment-card terminal-card">
+                            <div class="terminal-header">
+                                <div class="window-controls">
+                                    <div class="window-control red"></div>
+                                    <div class="window-control yellow"></div>
+                                    <div class="window-control green"></div>
+                                </div>
+                                <span>moment_002.exe</span>
+                            </div>
+                            <div class="terminal-content" style="border-top: 1px solid #0F0;">
+                                <h3 style="color: #0F0; margin-bottom: 10px;">好友相聚</h3>
+                                <p>和朋友一起熬夜畅谈，分享生活趣事</p>
+                                <div style="text-align: center; margin-top: 15px;">
+                                    <img src="https://picsum.photos/id/20/100/100" alt="好友相聚" style="max-width: 100px; border: 1px solid #0F0;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 快乐瞬间3 -->
+                        <div class="happy-moment-card terminal-card">
+                            <div class="terminal-header">
+                                <div class="window-controls">
+                                    <div class="window-control red"></div>
+                                    <div class="window-control yellow"></div>
+                                    <div class="window-control green"></div>
+                                </div>
+                                <span>moment_003.exe</span>
+                            </div>
+                            <div class="terminal-content" style="border-top: 1px solid #0F0;">
+                                <h3 style="color: #0F0; margin-bottom: 10px;">美食治愈</h3>
+                                <p>吃到心心念念的火锅，味蕾的快乐暴击</p>
+                                <div style="text-align: center; margin-top: 15px;">
+                                    <img src="https://picsum.photos/id/292/100/100" alt="美食治愈" style="max-width: 100px; border: 1px solid #0F0;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="terminal-button" onclick="document.getElementById('add-moment-modal').style.display='flex'">
+                            <span>+</span>
+                            <span style="margin-left: 8px;">添加快乐瞬间</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 互动终端区域 -->
+        <section id="terminal">
+            <div class="terminal-card">
+                <div class="terminal-header">
+                    <div class="window-controls">
+                        <div class="window-control red"></div>
+                        <div class="window-control yellow"></div>
+                        <div class="window-control green"></div>
+                    </div>
+                    <span>interactive_terminal.exe</span>
+                </div>
+                <div class="terminal-content">
+                    <h2 style="color: #0F0; margin-bottom: 20px; font-size: 1.5rem;">快乐终端 <span class="typing-animation"></span></h2>
+                    
+                    <div id="terminal-output"></div>
+                    
+                    <div class="input-line">
+                        <span style="color: #0F0;">></span>
+                        <input type="text" id="user-input" placeholder="输入指令，例如 'show happiness'">
+                    </div>
+                    
+                    <div style="margin-top: 20px; font-size: 12px; color: #0F08;">
+                        <p>可用指令：show happiness | show quote | joke | clear | about | help</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer style="border-top: 1px solid #0F0; margin-top: 50px; padding: 20px 0;">
+            <div style="text-align: center; font-size: 12px;">
+                <p>> copyright © 2025 龙柯皓·生如快乐 <span style="color: #00ffff; text-shadow: 0 0 5px #00ffff;">|</span> HACK STYLE BIRTHDAY</p>
+                <div style="display: flex; justify-content: center; gap: 15px; margin-top: 10px; color: #0f08;">
+                    <span>01010100</span>
+                    <span>01101000</span>
+                    <span>01100001</span>
+                    <span>01101110</span>
+                    <span>01101011</span>
+                    <span>01110011</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 添加快乐瞬间模态框 -->
+    <div class="modal" id="add-moment-modal">
+        <div class="modal-content">
+            <div class="terminal-header">
+                <div class="window-controls">
+                    <div class="window-control red"></div>
+                    <div class="window-control yellow"></div>
+                    <div class="window-control green"></div>
+                </div>
+                <span>add_moment.exe</span>
+            </div>
+            <div class="terminal-content">
+                <h2 style="color: #0F0; margin-bottom: 20px;">添加快乐瞬间</h2>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">标题</label>
+                    <input type="text" style="width: 100%; background: transparent; border: 1px solid #0F0; padding: 8px; color: #0F0;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">描述</label>
+                    <textarea style="width: 100%; background: transparent; border: 1px solid #0F0; padding: 8px; color: #0F0; min-height: 100px;"></textarea>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px;">上传图片</label>
+                    <input type="file" accept="image/*" style="display: none;" id="image-upload">
+                    <label for="image-upload" class="terminal-button" style="cursor: pointer;">
+                        <i class="fa fa-upload" style="margin-right: 8px;"></i>选择图片
+                    </label>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button class="terminal-button" onclick="document.getElementById('add-moment-modal').style.display='none'">
+                        取消
+                    </button>
+                    <button class="terminal-button" style="background-color: rgba(15, 255, 15, 0.1);">
+                        保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 代码雨效果 - 纯数字版本
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // 只使用数字字符
+        const chars = '0123456789';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * -canvas.height;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0F0';
+            ctx.font = `${fontSize}px monospace`;
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+
+        // 启动屏幕动画
+        const bootLogs = document.querySelectorAll('.boot-log');
+        const mainContent = document.getElementById('main-content');
+        
+        bootLogs.forEach((log, index) => {
+            log.style.animationDelay = `${index * 0.8}s`;
+        });
+        
+        setTimeout(() => {
+            document.getElementById('boot-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('boot-screen').style.display = 'none';
+                mainContent.style.display = 'block';
+            }, 500);
+        }, 5000);
+
+        // 扫描线动画
+        const styleSheet = document.styleSheets[0];
+        styleSheet.insertRule(`
+            @keyframes scan {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+            }
+        `, styleSheet.cssRules.length);
+
+        // 终端功能
+        const terminalOutput = document.getElementById('terminal-output');
+        const userInput = document.getElementById('user-input');
+        
+        // 初始提示
+        addToTerminal('欢迎使用快乐终端！输入 "help" 查看可用指令。', 'system');
+        
+        // 指令处理
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = userInput.value.trim().toLowerCase();
+                addToTerminal(`> ${command}`, 'user');
+                handleCommand(command);
+                userInput.value = '';
+            }
+        });
+        
+        function addToTerminal(text, type = 'system') {
+            const line = document.createElement('div');
+            line.style.margin = '5px 0';
+            
+            if (type === 'user') {
+                line.style.color = '#0FF';
+            } else {
+                line.style.color = '#0F0';
+            }
+            
+            // 打字机效果
+            let i = 0;
+            line.textContent = '';
+            terminalOutput.appendChild(line);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            
+            const typeInterval = setInterval(() => {
+                if (i < text.length) {
+                    line.textContent += text.charAt(i);
+                    i++;
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                } else {
+                    clearInterval(typeInterval);
+                }
+            }, 30);
+        }
+        
+        function handleCommand(command) {
+            switch(command) {
+                case 'help':
+                    addToTerminal('可用指令：');
+                    addToTerminal('show happiness - 显示快乐瞬间');
+                    addToTerminal('show quote - 显示快乐语录');
+                    addToTerminal('joke - 讲个笑话');
+                    addToTerminal('clear - 清空终端');
+                    addToTerminal('about - 关于这个网站');
+                    addToTerminal('help - 显示帮助信息');
+                    break;
+                    
+                case 'show happiness':
+                    addToTerminal('正在加载快乐瞬间...');
+                    setTimeout(() => {
+                        addToTerminal('1. 技术突破 - 成功实现一个黑客风格的网页');
+                        addToTerminal('2. 好友相聚 - 和朋友一起熬夜畅谈');
+                        addToTerminal('3. 美食治愈 - 吃到心心念念的火锅');
+                    }, 1000);
+                    break;
+                    
+                case 'show quote':
+                    const quotes = [
+                        '"快乐不是目的地，而是旅途中的风景。"',
+                        '"生活就像代码，需要不断调试才能更完美。"',
+                        '"每天保持一颗好奇的心，快乐就会不请自来。"',
+                        '"分享快乐，快乐就会加倍。"',
+                        '"在微小的事物中发现快乐，才是生活的艺术。"'
+                    ];
+                    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                    addToTerminal('快乐语录：');
+                    setTimeout(() => {
+                        addToTerminal(randomQuote, 'quote');
+                    }, 500);
+                    break;
+                    
+                case 'joke':
+                    const jokes = [
+                        '为什么程序员总是分不清万圣节和圣诞节？因为 Oct 31 = Dec 25！',
+                        '如何让程序员笑？告诉他一个笑话...然后等他在脑子里编译完。',
+                        '程序员的最佳伴侣是什么？是注释——因为它能解释你的想法。',
+                        '为什么代码喜欢咖啡？因为它需要咖啡因来保持 awake()。'
+                    ];
+                    const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+                    addToTerminal('正在生成笑话...');
+                    setTimeout(() => {
+                        addToTerminal(randomJoke);
+                    }, 1000);
+                    break;
+                    
+                case 'clear':
+                    terminalOutput.innerHTML = '';
+                    break;
+                    
+                case 'about':
+                    addToTerminal('这是一个为龙柯皓创建的黑客风格生日祝福网站。');
+                    addToTerminal('融合《黑客帝国》视觉元素与"生如快乐"主题，');
+                    addToTerminal('祝愿龙柯皓生日快乐，永远保持对生活的热爱与好奇！');
+                    break;
+                    
+                default:
+                    addToTerminal(`错误：未知指令 "${command}"`);
+                    addToTerminal('输入 "help" 查看可用指令。');
+            }
+        }
+    </script>
+</body>
+</html>
