@@ -6,211 +6,87 @@
     <title>龙柯皓生日倒计时</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <!-- GSAP 动画库 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#e63946',
-                        secondary: '#ffb703',
-                        accent: '#fb8500',
-                        dark: '#023047',
-                        light: '#f1faee'
-                    },
-                    fontFamily: {
-                        sans: ['Arial', 'sans-serif'],
-                        display: ['Comic Sans MS', 'cursive']
-                    },
-                    animation: {
-                        'float': 'float 3s ease-in-out infinite',
-                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'sparkle': 'sparkle 2s ease-in-out infinite',
-                        'bounce-slow': 'bounce 3s infinite'
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' }
-                        },
-                        sparkle: {
-                            '0%, 100%': { opacity: 1 },
-                            '50%': { opacity: 0.5 },
-                            '25%, 75%': { transform: 'scale(1.1)' }
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .text-shadow {
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            }
-            .text-shadow-lg {
-                text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 0, 0.5);
-            }
-            .text-stroke {
-                -webkit-text-stroke: 1px #000;
-            }
-            .text-stroke-lg {
-                -webkit-text-stroke: 2px #000;
-            }
-            .bg-gradient-birthday {
-                background: linear-gradient(135deg, #ff4b4b 0%, #ff6b6b 50%, #ff8e8e 100%);
-            }
-            .bg-glass {
-                background: rgba(255, 255, 255, 0.2);
-                backdrop-filter: blur(8px);
-                -webkit-backdrop-filter: blur(8px);
-            }
-        }
-        
-        /* 自定义样式 */
+    <style>
+        /* 基础样式 */
         body {
-            overflow: hidden;
-            cursor: pointer;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
         }
         
+        /* 倒计时样式 */
         .countdown-container {
-            position: relative;
-            z-index: 10;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .countdown-item {
+            text-align: center;
         }
         
         .countdown-number {
-            font-size: clamp(2rem, 10vw, 8rem);
-            line-height: 1.2;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #333;
         }
         
         .countdown-label {
-            font-size: clamp(1rem, 4vw, 2rem);
-        }
-        
-        .firework {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #ffd700;
-            transform: scale(0);
-            z-index: 5;
-        }
-        
-        .celebration-text {
-            font-size: clamp(2rem, 8vw, 6rem);
-            font-weight: bold;
-            color: #ffd700;
-            text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ffd700;
-            opacity: 0;
-            z-index: 20;
-            animation: celebrate 2s ease-in-out infinite;
-        }
-        
-        @keyframes celebrate {
-            0%, 100% {
-                transform: scale(0.8);
-                opacity: 0.8;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 1;
-            }
-        }
-        
-        /* 粒子效果 */
-        #particles-js {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 1;
+            font-size: 1rem;
+            color: #666;
         }
         
         /* 响应式调整 */
         @media (max-width: 768px) {
             .countdown-number {
-                font-size: clamp(1.5rem, 8vw, 5rem);
+                font-size: 2rem;
             }
             
-            .countdown-label {
-                font-size: clamp(0.8rem, 3vw, 1.5rem);
-            }
-            
-            .cake {
-                width: 150px;
-                height: 120px;
+            .countdown-container {
+                gap: 1rem;
             }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-500 to-purple-600">
-    <!-- 粒子背景 -->
-    <div id="particles-js"></div>
-    
-    <!-- 烟花效果 -->
-    <div id="fireworks-container"></div>
-    
+<body>
     <!-- 主内容 -->
-    <div class="min-h-screen flex flex-col items-center justify-center relative z-10">
+    <div class="container">
         <!-- 标题 -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl md:text-6xl font-bold text-white text-shadow-lg animate-sparkle">
-                龙柯皓生日倒计时
+        <div class="text-center mb-4">
+            <h1 class="text-3xl font-bold text-black">
+                龙柯皓生日快乐
             </h1>
-            <p class="text-xl md:text-2xl text-yellow-300 mt-2 text-shadow">
-                距离生日还有...
-            </p>
         </div>
         
         <!-- 倒计时 -->
-        <div id="countdown" class="countdown-container flex flex-wrap justify-center gap-4 md:gap-8">
-            <div class="text-center">
-                <div id="days" class="countdown-number font-bold text-white text-shadow-lg">00</div>
-                <div class="countdown-label text-yellow-300 text-shadow">天</div>
+        <div id="countdown" class="countdown-container">
+            <div class="countdown-item">
+                <div id="days" class="countdown-number">00</div>
+                <div class="countdown-label">天</div>
             </div>
-            <div class="text-center">
-                <div id="hours" class="countdown-number font-bold text-white text-shadow-lg">00</div>
-                <div class="countdown-label text-yellow-300 text-shadow">时</div>
+            <div class="countdown-item">
+                <div id="hours" class="countdown-number">00</div>
+                <div class="countdown-label">时</div>
             </div>
-            <div class="text-center">
-                <div id="minutes" class="countdown-number font-bold text-white text-shadow-lg">00</div>
-                <div class="countdown-label text-yellow-300 text-shadow">分</div>
+            <div class="countdown-item">
+                <div id="minutes" class="countdown-number">00</div>
+                <div class="countdown-label">分</div>
             </div>
-            <div class="text-center">
-                <div id="seconds" class="countdown-number font-bold text-white text-shadow-lg">00</div>
-                <div class="countdown-label text-yellow-300 text-shadow">秒</div>
+            <div class="countdown-item">
+                <div id="seconds" class="countdown-number">00</div>
+                <div class="countdown-label">秒</div>
             </div>
-        </div>
-        
-        <!-- 生日蛋糕 -->
-        <div class="mt-8">
-            <img src="https://p26-doubao-search-sign.byteimg.com/labis/98f88c7bd040dc8d8f9a89fc14e091b0~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780060961&x-signature=ilPnqPR9qBN37CMWf9JC0zckfyg%3D" 
-                 alt="生日蛋糕" 
-                 class="w-48 h-48 object-contain animate-float">
-        </div>
-        
-        <!-- 祝福语 -->
-        <div id="message" class="mt-6 text-center px-4">
-            <p class="text-xl md:text-2xl text-white font-bold text-shadow-lg">
-                祝龙柯皓11岁生日快乐！健康成长，快乐每一天！
-            </p>
-        </div>
-        
-        <!-- 庆祝文字 (默认隐藏) -->
-        <div id="celebration" class="fixed inset-0 flex items-center justify-center">
-            <h2 class="celebration-text">生日快乐！</h2>
         </div>
     </div>
-    
-    <!-- 粒子效果库 -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     
     <script>
         // 目标生日日期：2025年12月2日
@@ -221,148 +97,11 @@
         const hoursElement = document.getElementById('hours');
         const minutesElement = document.getElementById('minutes');
         const secondsElement = document.getElementById('seconds');
-        const countdownElement = document.getElementById('countdown');
-        const celebrationElement = document.getElementById('celebration');
-        const messageElement = document.getElementById('message');
-        const balloonsContainer = document.getElementById('balloons-container');
-        const confettiContainer = document.getElementById('confetti-container');
-        const fireworksContainer = document.getElementById('fireworks-container');
-        
-        // 初始化粒子背景
-        function initParticles() {
-            particlesJS('particles-js', {
-                particles: {
-                    number: {
-                        value: 30,
-                        density: {
-                            enable: true,
-                            value_area: 1000
-                        }
-                    },
-                    color: {
-                        value: ['#ffffff', '#ffd700']
-                    },
-                    shape: {
-                        type: 'circle',
-                        stroke: {
-                            width: 0,
-                            color: '#000000'
-                        }
-                    },
-                    opacity: {
-                        value: 0.6,
-                        random: true,
-                        anim: {
-                            enable: false
-                        }
-                    },
-                    size: {
-                        value: 6,
-                        random: true,
-                        anim: {
-                            enable: false
-                        }
-                    },
-                    line_linked: {
-                        enable: true,
-                        distance: 150,
-                        color: '#ffffff',
-                        opacity: 0.2,
-                        width: 1
-                    },
-                    move: {
-                        enable: true,
-                        speed: 0.5,
-                        direction: 'none',
-                        random: true,
-                        straight: false,
-                        out_mode: 'out',
-                        bounce: false,
-                        attract: {
-                            enable: false
-                        }
-                    }
-                },
-                interactivity: {
-                    detect_on: 'canvas',
-                    events: {
-                        onhover: {
-                            enable: true,
-                            mode: 'grab'
-                        },
-                        onclick: {
-                            enable: true,
-                            mode: 'push'
-                        },
-                        resize: true
-                    },
-                    modes: {
-                        grab: {
-                            distance: 140,
-                            line_linked: {
-                                opacity: 0.5
-                            }
-                        },
-                        push: {
-                            particles_nb: 5
-                        }
-                    }
-                },
-                retina_detect: true
-            });
-        }
-        
-        // 创建烟花
-        function createFirework(x, y) {
-            const firework = document.createElement('div');
-            firework.classList.add('firework');
-            
-            // 位置
-            firework.style.left = `${x}px`;
-            firework.style.top = `${y}px`;
-            
-            // 随机颜色
-            const colors = ['#ff6b6b', '#ffd700', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            firework.style.backgroundColor = color;
-            
-            fireworksContainer.appendChild(firework);
-            
-            // 动画
-            gsap.to(firework, {
-                scale: 15,
-                opacity: 0,
-                duration: 1,
-                ease: 'power2.out',
-                onComplete: () => {
-                    fireworksContainer.removeChild(firework);
-                }
-            });
-        }
         
         // 更新倒计时
         function updateCountdown() {
             const now = new Date();
             const diff = targetDate - now;
-            
-            // 检查是否已经过了生日
-            if (diff <= 0) {
-                // 显示庆祝模式
-                countdownElement.style.display = 'none';
-                celebrationElement.style.display = 'flex';
-                messageElement.innerHTML = '<p class="text-xl md:text-2xl text-white font-bold text-shadow-lg">祝龙柯皓11岁生日快乐！健康成长，快乐每一天！</p>';
-                
-                // 触发烟花效果
-                for (let i = 0; i < 20; i++) {
-                    setTimeout(() => {
-                        const x = Math.random() * window.innerWidth;
-                        const y = Math.random() * window.innerHeight;
-                        createFirework(x, y);
-                    }, i * 300);
-                }
-                
-                return;
-            }
             
             // 计算天、时、分、秒
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -375,29 +114,14 @@
             hoursElement.textContent = hours.toString().padStart(2, '0');
             minutesElement.textContent = minutes.toString().padStart(2, '0');
             secondsElement.textContent = seconds.toString().padStart(2, '0');
-            
-            // 添加动画效果
-            if (seconds % 2 === 0) {
-                secondsElement.classList.add('text-secondary');
-                secondsElement.classList.add('scale-110');
-            } else {
-                secondsElement.classList.remove('text-secondary');
-                secondsElement.classList.remove('scale-110');
-            }
         }
         
         // 初始化
         function init() {
-            initParticles();
             updateCountdown();
             
             // 每秒更新倒计时
             setInterval(updateCountdown, 1000);
-            
-            // 点击页面触发烟花
-            document.addEventListener('click', (e) => {
-                createFirework(e.clientX, e.clientY);
-            });
         }
         
         // 页面加载完成后初始化
